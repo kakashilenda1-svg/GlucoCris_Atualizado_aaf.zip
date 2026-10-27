@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Descompactar
-        run: unzip -o ./*.zip
+        run: unzip -o ./*.aaf
       - name: Ajustar projeto
         working-directory: agon_source
         run: |
