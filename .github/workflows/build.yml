@@ -8,8 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Descompactar
-        run: unzip -o ./*.aaf
+        run: |
+          f=$(git log --diff-filter=AM --name-only --format= | grep -E '\.(aaf|zip)$' | head -1)
+          echo "Usando: $f"
+          unzip -o "$f"
       - name: Ajustar projeto
         working-directory: agon_source
         run: |
