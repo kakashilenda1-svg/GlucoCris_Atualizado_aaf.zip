@@ -1,0 +1,1 @@
+# GlucoCris_Atualizado_aaf.zip
