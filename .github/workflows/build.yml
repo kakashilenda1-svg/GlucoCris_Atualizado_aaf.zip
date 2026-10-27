@@ -1,0 +1,45 @@
+name: Build APK
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Descompactar
+        run: unzip -o ./*.zip
+      - name: Ajustar projeto
+        working-directory: agon_source
+        run: |
+          rm -f local.properties
+          perl -0pi -e 's/\s*kotlinOptions \{[^}]*\}//' app/build.gradle.kts
+          cat >> app/build.gradle.kts << 'EOF'
+
+          kotlin {
+              compilerOptions {
+                  optIn.addAll(
+                      "androidx.compose.material3.ExperimentalMaterial3Api",
+                      "androidx.compose.foundation.ExperimentalFoundationApi",
+                      "androidx.compose.foundation.layout.ExperimentalLayoutApi"
+                  )
+              }
+          }
+          EOF
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Aceitar licencas do Android
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.11.1
+      - name: Compilar
+        working-directory: agon_source
+        run: gradle assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Agon-APK
+          path: agon_source/app/build/outputs/apk/debug/*.apk
